@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html ng-app="app">
+<head lang="en">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="UTF-8">
+    <title>Contiv</title>
+
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/jquery-ui.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+    <link rel="stylesheet" href="assets/css/loading-bar.css">
+    <link rel="stylesheet" href="assets/css/jquery.scrollbar.css">
+    <link rel="stylesheet" href="assets/css/angular-toastr.css">
+    <link rel="stylesheet" href="assets/css/vmenuModule.css">    
+    <link id="ng_load_plugins_before" />
+    <link rel="stylesheet" href="assets/css/font-awesome.min.css">
+    
+
+
+</head>
+<body>
+    <div ng-spinner-bar class="page-spinner-bar">
+        <div class="bounce1"></div>
+        <div class="bounce2"></div>
+        <div class="bounce3"></div>
+    </div>
+    <div class="fade-in-up_inner">
+        <div ng-include="'app/shared/header/headerView.html'" ng-controller="HeaderCtrl"></div>
+        <div id="main" ui-view></div>
+        <div ng-include="'app/shared/footer/FooterView.html'" ng-controller="HeaderCtrl" ng-if="!hideFooter"></div>
+        
+    </div>
+
+
+
+   <script src="assets/libs/jquery-1.11.1.min.js"></script>
+   <script src="assets/libs/jquery-ui.js"></script>
+   <script src="assets/libs/jquery.flip.min.js"></script>
+   
+   
+   <script src="assets/libs/angular.min.js"></script>
+   <script src="assets/libs/angular-animate.js"></script>
+   <script src="assets/libs/angular-multi-step-form.1.2.7.min.js"></script>
+   <script src="assets/libs/loading-bar.js"></script>
+   <script src="assets/libs/angular-smooth-scroll.min.js"></script>
+   
+   
+	<script src="assets/libs/ui-bootstrap-tpls-1.1.2.min.js"></script>
+    <script src="assets/libs/ocLazyLoad.min.js"></script>
+    
+    <script src="assets/libs/angular-drag-and-drop-lists.js"></script>
+    <script src="assets/libs/vmenuModule.js"></script>
+    <script src="assets/libs/jquery.scrollbar.js"></script>
+    <script src="assets/libs/angular-sanitize.js"></script>
+    <script src="assets/libs/angular-toastr.tpls.js"></script>
+
+
+<!--    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+     <script src="https://code.jquery.com/ui/1.10.4/jquery-ui.min.js"></script>-->
+
+    
+	<script src="assets/libs/angular-ui-router.min.js"></script>
+    <script src="app/app.routes.js"></script>
+    <script src="assets/js/tileFactory.js"></script>
+    <script src="assets/js/wizardFactory.js"></script>
+    <script src="assets/js/custom.js"></script>
+    
+    <script src="assets/js/customDirectives.js"></script>
+    <script src="app/shared/header/headerController.js"></script>
+
+</body>
+</html>

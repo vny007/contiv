@@ -1,0 +1,174 @@
+<div class="slider-container">
+	
+	<uib-carousel active="active" class="carousel-fade" interval="myInterval" no-wrap="noWrapSlides">
+      <uib-slide ng-repeat="slide in slides track by slide.id" index="slide.id" style=" background:url({{slide.image}}) no-repeat; background-position:top; background-size:cover; height:450px">
+            <div class="container">
+            	<div class="col-sm-6">
+                	<div class="sliderCaption">
+                        <h4>{{slide.title}}</h4>
+                        <p>{{slide.text}}</p>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                	<iframe width="560" class="sliderIframe" height="315" src="https://www.youtube.com/embed/AzrTRp-6R48" frameborder="0" allowfullscreen></iframe>
+                </div>
+            </div>
+      </uib-slide>
+    </uib-carousel>
+    
+</div>
+<!-- Slider end -->
+<section class="caroselCont specialization">
+        <div class="container">
+        	<div class="col-xs-4 col-sm-2 col-sm-offset-1"><div class="media text-center inlineImage"><a href="#"
+    scroll-to="networking-section" offset="50"><img alt="app-design" class="img-zoomer img-responsive" src="assets/images/g1.png" /></a>
+            <h5>NETWORKING</h5></div></div>
+            <div class="col-xs-2 col-xs-0"><div class="media "></div></div>
+            <div class="col-xs-4 col-sm-2 "><div class="media text-center inlineImage"><a href="#" scroll-to="storage-section" offset="50"><img alt="app-design" class="img-zoomer img-responsive" src="assets/images/g2.png" /></a> 
+            <h5>STORAGE</h5></div></div>
+            <div class="col-xs-2  col-xs-0"><div class="media"></div></div>
+            <div class="col-xs-4 col-sm-2 "><div class="media text-center inlineImage"><a href="#" scroll-to="cluster-section"><img alt="app-design" class="img-zoomer img-responsive" src="assets/images/g3.png" /></a>
+            <h5>CLUSTER</h5>
+            </div></div>
+             
+             
+             
+        </div>
+ </section>
+ 
+<section class="colorBg" id="networking-section">
+	<div class="container">
+    	<div class="col-sm-6">
+        	<img class="img-responsive" src="assets/images/network.jpg" alt="" />
+        </div>
+        <div class="col-sm-6">
+        <h4>Networking for Microservices</h4>
+
+<p>Contiv provides a higher level of networking abstraction for microservices. Contiv secures your application using a rich policy framework. It provides built-in service discovery and service routing for scale out services.</p>
+
+
+        </div>
+    </div>
+
+</section>
+
+
+<section class="">
+	<div class="container">
+    	<div class="row">
+        <div class="col-sm-12">
+            <div class="sectionHeader text-center">	
+                <h3>Scheduler Integration</h3>
+                <p>Contiv works with major container schedulers like <br />Docker Swarm, Kubernetes, Mesos and Nomad.</p>
+            </div>
+        </div>
+        </div>
+        <div class="row">
+        	<div class="col-xs-6 col-sm-3 text-center inlineImage">
+        		<img class="img-responsive img-zoomer" src="assets/images/douck.png" alt="" />
+                <h5>Docker Swarm</h5>
+            </div>
+            <div class="col-xs-6 col-sm-3 text-center inlineImage">
+        		<img class="img-responsive img-zoomer" src="assets/images/Kubernetes.png" alt="" />
+                <h5>Kubernetes</h5>
+            </div>
+            <div class="col-xs-6 col-sm-3 text-center inlineImage">
+        		<img class="img-responsive img-zoomer" src="assets/images/mesos.png" alt="" />
+                <h5>Mesos</h5>
+            </div>
+            <div class="col-xs-6 col-sm-3 text-center inlineImage">
+        		<img class="img-responsive img-zoomer" src="assets/images/nd.png" alt="" />
+                <h5>Nomad</h5>
+            </div>
+        </div>
+    </div>
+
+</section>
+
+
+<section class="colorBg">
+	<div class="container">
+    	<div class="col-sm-6">
+        	<img class="img-responsive imageStyle" src="assets/images/virtual.png" alt="" />
+        </div>
+        <div class="col-sm-6">
+        <h4>Rich Networking Options</h4>
+
+<p>Contiv provides IP address per container and eliminates 
+the need for host-based port NAT. It works with different 
+kinds of networks like pure layer 3 networks, overlay 
+networks, and layer 2 networks, and it provides the same
+virtual network view to containers regardless of the 
+underlying technology.</p>
+
+<p><a class="read-more">Read More</a></p>
+
+
+
+
+        </div>
+    </div>
+
+</section>
+
+<section class="" id="storage-section">
+	<div class="container">
+    	<div class="row">
+        <div class="col-sm-12">
+        	 <div class="sectionHeader text-center">	
+        <h3>STORAGE</h3>
+
+<p>Lorem Ipsum is simply dummy text of the printing and typesetting industry.<br/> Lorem Ipsum has been the industry's standard dummy text ever since the 1500s</p>
+</div>
+
+        </div>
+        </div>
+        <div class="row">
+        	<div class="col-sm-6">
+        		<h4>Distributed Storage</h4>
+
+<p>Contiv Storage pools storage resources across a cluster of nodes 
+and provides persistent volumes to stateful containers. With 
+Contiv Storage, you can treat storage as just another schedulable 
+resource in the cluster.</p>
+<p><a class="read-more">Read More</a></p>
+
+            </div>
+            <div class="col-sm-6">
+        		<img class="img-responsive imageStyle" src="assets/images/storage.png" alt="" />
+               
+            </div>
+        </div>
+    </div>
+
+</section>
+
+<section class="colorBg" id="cluster-section">
+	<div class="container">
+    	<div class="row">
+        <div class="col-sm-12">
+        <div class="sectionHeader text-center">	
+        <h3>CLUSTER</h3>
+
+<p>Lorem Ipsum is simply dummy text of the printing and typesetting industry.<br/> Lorem Ipsum has been the industry's standard dummy text ever since the 1500s</p>
+
+</div>
+        </div>
+        </div>
+        <div class="row">
+        	
+            <div class="col-sm-6">
+        		<img class="img-responsive imageStyle" src="assets/images/cluster.png" alt="" />
+                
+            </div>
+            <div class="col-sm-6">
+        		<h4>Contiv Cluster</h4>
+
+<p>Contiv Cluster provisions and manages a large number of physical nodes.</p>
+
+<p><a class="read-more">Read More</a></p>
+            </div>
+        </div>
+    </div>
+
+</section>
