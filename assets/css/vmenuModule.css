@@ -24,26 +24,48 @@
 img{ max-width:100%; height:auto;}
 .u-vmenu > ul > li > a {
 	padding-left: 10px;
-	background-color:#dff6ff !important;
+	background-color:#fff !important;
 	color: #517fa4; font-family:"latobold";
 	text-transform:uppercase;
 	border-bottom:1px solid #ccc;
 	font-size:14px;
 	
 }
+.u-vmenu > ul li.active > a {
+	background-color:#dff6ff !important;
+	color: #517fa4; font-family:"latobold";
+	border-bottom:1px solid #ccc;
+	font-size:14px; position:relative;
+	
+}
+.u-vmenu > ul li ul a { background:url("../images/list.png") no-repeat scroll 14px center rgba(0, 0, 0, 0);}
+.u-vmenu > ul li.active > a:after {
+    border-bottom: 7px solid transparent;
+    border-right: 10px solid #fff;
+    border-top: 7px solid transparent;
+    content: "";
+    display: block;
+    height: 0;
+    position: absolute;
+    right: 0;
+    top: 18px;
+    width: 0;}
 .u-vmenu > ul > li > ul > li > a {
-	padding-left: 10px;
+	padding-left: 30px;
 	background-color: #fff !important;
 	border-bottom:1px solid #ccc;
 }
-.u-vmenu > ul > li > ul > li > ul {
-	padding-left: 35px;
+.u-vmenu > ul > li > ul > li > ul >li > a {
+	padding-left: 50px;
+	background-position:33px center;
 }
-.u-vmenu > ul > li > ul > li > ul > li > ul {
-	padding-left: 25px;
+.u-vmenu > ul > li > ul > li > ul > li > ul >li > a{
+	padding-left: 60px;
+	background-position:40px center;
 }
-.u-vmenu > ul > li > ul > li > ul > li > ul > li > ul  {
-	padding-left: 20px;
+.u-vmenu > ul > li > ul > li > ul > li > ul > li > ul >li > a {
+	padding-left: 75px;
+	background-position:54px center;
 }
 /*.u-vmenu ul li a[data-option='on']{
 	background: url(../images/vmenu/on.png) right center no-repeat;

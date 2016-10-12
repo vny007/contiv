@@ -4,7 +4,7 @@
 			item;
 		var options = $.extend({
 				Speed: 220,
-				autostart: true,
+				autostart: false,
 				autohide: 1
 			},
 			option);
@@ -29,8 +29,8 @@
 			}
 			if (a.attr("data-option") == "on") {
 				//alert('ok');
-				//a.attr("data-option", "off");
-				//a.parent("li").children("ul").slideUp(options.Speed)
+				a.attr("data-option", "off");
+				a.parent("li").children("ul").slideUp(options.Speed)
 			}
 		});
 		if (options.autostart) {

@@ -10,7 +10,7 @@ return {
 			});
 			$(element).vmenuModule({
 					Speed: 200,
-					autostart: true,
+					autostart: false,
 					autohide: false
 				});
 			},
@@ -30,7 +30,7 @@ return {
                 $rootScope.$on('$stateChangeStart', function() {
 					
 					//$(document.body).find('.fade-in-up_inner').addClass('noopacity');
-                   // element.removeClass('hide'); // show spinner bar
+                    //element.removeClass('hide'); // show spinner bar
 					
 					
                 });

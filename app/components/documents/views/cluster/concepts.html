@@ -1,0 +1,226 @@
+<div class="bs-docs-section">
+				
+	<h1>Concepts and Features</h1>
+<p>This page:</p>
+<p>1. Defines a number of terms important to best understand and use Contiv Cluster.
+2. Describes features that should be present in a clustering product, and describes their implementation in Contiv Cluster.</p>
+
+<h2>Definitions</h2>
+<p>The following terms are listed in alphabetical order.</p>
+
+<h3>Bootstrap</h3>
+<p>Bootstraping is provisioning a node or cluster for the first time. Contiv distinguishes two types of bootstrap:</p>
+
+<ul>
+<li><em>Node Bootstrap</em>: The process of installing the node image and booting the node for the first time.
+</li>
+<li><em>Cluster Bootstrap</em>: The process of adding one or more bootstrapped nodes to the cluster for the first time.
+</li>
+</ul>
+
+<h3>Cluster</h3>
+<p>A collection of one or more nodes running clustering software such as Docker Swarm.
+Nodes may or may not all have the same capabilities.</p>
+<p><a name="features"></a></p>
+
+<h3>Features</h3>
+<p>Following is a list of features for Contiv Cluster. Not all features are implemented in this early release.</p>
+
+<ul>
+<li>Node discovery to simplify cluster bootstrapping and expansion
+</li>
+<li>Cluster management
+
+<ul>
+<li><a href="#inventory">Inventory</a>
+</li>
+<li>Discovery
+</li>
+<li>Node state database
+</li>
+<li><a href="#node-image-management">Node image management</a>
+</li>
+<li>Install
+</li>
+<li>Upgrade
+</li>
+<li><a href="#node-configuration-management">Node configuration management</a>
+</li>
+<li>Clustering software components (swarm-agent and similar componenets)
+</li>
+<li>Infrastructure software components (ovs, serf, consul, etcd, and so on)
+</li>
+<li>Contiv infrastructure services (netmaster, netplugin, volplugin, and supporting utilities)
+</li>
+<li><a href="#bootstrap-1">Bootstrap</a>
+</li>
+<li>Node
+</li>
+<li>Cluster
+</li>
+<li><a href="#lifecycle-1">Lifecycle</a>
+</li>
+<li>Node
+</li>
+<li>Cluster
+</li>
+</ul>
+</li>
+</ul>
+
+<h3>Image</h3>
+<p>An operating system with a <em>minimal set</em> of pre-installed packages used by a node. For instance,
+node automated discovery requires a cluster membership service like <a href="https://www.serfdom.io/">Serf</a>
+be pre-installed and started on the node during bootstrapping.</p>
+
+<h3>Infra Service</h3>
+<p>An infrastructure (infra) service is a userspace application or a kernel module on a 
+node that provides a support service to the clustering system software. 
+Examples include plugins, drivers, components for networking and storage, key-value stores, and so on.</p>
+
+<h3>Lifecycle</h3>
+<p>A well defined collection of states that a node or cluster transitions through based on system events.</p>
+
+<h3>Node</h3>
+<p>A physical or virtual server with defined compute, memory, storage and networking capabilities.</p>
+
+<h2>Features</h2>
+<p>The following sections detail the <em>cluster management</em> features listed in the <a href="#features">Features</a> 
+definition. The Contiv Cluster GitHub repository contains a 
+<a href="https://github.com/contiv/cluster/blob/master/management/DESIGN.md">Design Guide</a>
+that describes technical details of Contiv Cluster features.</p>
+<p><a name="inventory"></a></p>
+
+<h3>Inventory</h3>
+<p>Inventory management provides:</p>
+
+<ul>
+<li><em>Cluster Membership Management</em>: Automatic discovery of nodes and and tracking of discovery status.
+</li>
+<li><em>Node State Database</em>: Tracking of the current state of the node within the cluster.  Node states consist of the following:
+
+<ul>
+<li><em>New</em>: A node that has not completed the bootstrap and discovery process.
+</li>
+<li><em>Discovered</em>: A node that has completed bootstrapping, has notified the Cluster Manager, and is waiting to be commissioned.
+</li>
+<li><em>Commissioned</em>: A node has been configured to participate in the cluster.
+</li>
+<li><em>Upgraded</em>: A node on which one or more node components have been upgraded and is ready to participate in the cluster.
+</li>
+<li><em>Decommissioned</em>: A node on which all configuration and software components have been removed. The node no longer participates in the cluster.
+</li>
+</ul>
+</li>
+</ul>
+<p><a name="node-configuration-management"></a></p>
+
+<h3>Node Configuration Management</h3>
+<p>Node Configuration Management provides:</p>
+
+<ul>
+<li><em>Image Repository</em>: A central location reachable by nodes where images are hosted. Images are delivered to nodes using mechanisms such as PXE.
+</li>
+<li><em>Image Installation</em>: Automatic installation of of images on new nodes.
+</li>
+<li><em>Upgrades</em>: Automatic upgrading of the node image. Upgrades can be automatically triggered and can be performed cluster-wide or rolling.
+</li>
+</ul>
+<p><em>Note:</em> Node Configuration Management features are <em>not</em> included in the initial release of Contiv Cluster.
+Operators are responsible for node bootstrapping, including image provisioning.</p>
+<p>Node Configuration Management provides:</p>
+
+<ul>
+<li><em>Configuration Repository</em>: A central location for hosting node configuration files.
+The configuration is used to automate the deployment of nodes.
+</li>
+<li><em>Configuration Push</em>: The configuration of nodes is pushed from Cluster Manager to nodes.
+</li>
+<li><em>Configuration Cleanup</em>: Configuration files, service, packages, etc. are removed from nodes.
+</li>
+<li><em>Configuration Verification</em>: Checks to ensure that the node configuration is truly functional.
+</li>
+<li><em>Configuration Upgrade</em>: Automates the process of upgrading node software components.
+Upgrades can be automatically triggered and can be performed cluster-wide or rolling.
+</li>
+<li><em>Role/Group-Based Configuration</em>: Nodes can be assigned a group or role.
+Role/Group-Based configuration selectively manages services on nodes statically by the
+operator or dynamically based on service availability policy.
+</li>
+</ul>
+<p><em>Note:</em> Dynamic role assignment is <em>not</em> supported in initial release of Contiv Cluster.</p>
+<p><a name="bootstrap-1"></a></p>
+
+<h3>Bootstrap</h3>
+<p>Contiv provides node and cluster boostrapping.</p>
+
+<h4>Node</h4>
+<p>Contiv Cluster provides the following node bootstrapping capabilities:</p>
+
+<ul>
+<li>Installing the base image.
+</li>
+<li>Performing initial configurations such as disk partitioning.
+</li>
+<li>Assigning an IP address.
+</li>
+<li>Configuring user credentials and permissions to perform configuration management tasks.
+</li>
+<li>Starting infrastructure services such as Serf.
+</li>
+</ul>
+<p><em>Note:</em> Node bootstrap is <em>not</em> provided as part of initial release of Contiv Cluster. Operators are responsible for node bootstrapping, including image provisioning.</p>
+
+<h4>Cluster</h4>
+<p>Cluster bootstrap installs and configures clustering software components such as swarm-master
+(for Docker Swarm) to the first bootstrapped node with parameters such as:</p>
+
+<ul>
+<li>Configuration management parameters such as user information, configuration repository.
+</li>
+<li>Inventory management parameters such as database URL.
+</li>
+</ul>
+<p><a name="lifecycle-1"></a></p>
+
+<h3>Lifecycle</h3>
+<p>Lifecycle management integrates multiple cluster and node management tasks at a
+central location to simplify monitoring and administration of the cluster.</p>
+
+<h4>Node</h4>
+<p>Node lifecycle management provides:</p>
+
+<ul>
+<li><em>Bootstrap</em>: Remotely provision a node's image from a central location. <em>As described
+above this feature is not provided in the initial release of Contiv Cluster.</em>
+</li>
+<li><em>Cluster Membership</em>: Automatically track a cluster's membership of reachable and unreachable nodes.
+</li>
+<li><em>Commission</em>: Remotely provision a node's clustering software, configuration, and so on.
+Optionally, commission newly discovered nodes automatically.
+</li>
+<li><em>Upgrade</em>: Remotely upgrade the image or a software component of a commissioned node.
+Optionally, upgrade nodes when a configuration repository changes.
+</li>
+<li><em>Decommission</em>: Automatically remove configuration, software components, and so on from a commissioned node.
+</li>
+<li><em>Batch operation</em>: Commission, upgrade, or decommission all or a subset of nodes.
+</li>
+<li><em>Reload</em>: In the event of a node reload or a lost connection, verify the node configuration
+and automate corrective actions.
+</li>
+</ul>
+
+<h4>Cluster</h4>
+<p>Cluster lifecycle management provides:</p>
+
+<ul>
+<li><em>Bootstrap</em>: Remotely bootstrap a cluster.
+</li>
+<li><em>High Availability</em>: The cluster manager service is available as long as at least one node is running
+in the cluster.
+</li>
+</ul>
+
+
+			</div>

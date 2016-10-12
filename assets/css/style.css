@@ -100,7 +100,7 @@ footer {
 
 .navbar-brand {
   height: 60px;
-  padding: 4px 4px 4px 15px; }
+  padding: 4px 4px 4px 0px; }
 
 .nav-collapse ul {
   text-align: center; }
@@ -306,12 +306,12 @@ footer p{ color:#fff;margin:0; margin-top:6px}
 .img-zoomer:hover { transform: scale(1.1);}
 .img-rotate{transition: all 0.5s ease 0s;-webkit-transition: all 0.5s ease 0s;-moz-transition: all 0.5s ease 0s;}
 .img-rotate:hover { transform: rotate(25deg);}
-.read-more{background: url("../images/read-more.png") no-repeat scroll right center rgba(0, 0, 0, 0);
+.read-more{background: url("../images/read-more.png") no-repeat scroll rgba(0, 0, 0, 0); cursor:pointer; text-decoration:none; text-align:center;
     display: inline-block;
     height: 46px; color:#fff;
     padding: 10px;
-    width: 160px;transition: all 1.1s ease 0s;-webkit-transition: all 1.1s ease 0s;-moz-transition: all 1.1s ease 0s;}
-	.read-more:hover{ background-position:-20px; padding-left:20px; color:#fff;}
+    width: 160px;transition: all 1.1s ease 0s;-webkit-transition: all 1.1s ease 0s;-moz-transition: all 1.1s ease 0s; background-position:-20px;}
+	.read-more:hover{  padding-left:0px; color:#fff; background-position: right;}
 	.sliderIframe{ margin-top:10%;}
 	.sliderIframe{ max-width:100% !important; max-height:100%;}
 	.rightCont{ border-left:1px solid #ccc; padding-left:10px; top:25%;}
@@ -338,3 +338,5 @@ footer p{ color:#fff;margin:0; margin-top:6px}
 }
 .searchBox{ padding:10px; border-bottom:1px solid #ccc; background:#fff;}
 li.active > a{ color:#000 !important;}
+.noPaddingFluid{ padding-left:0 !important; padding-right:0 !important;}
+.cursorPointer{ cursor:pointer;}

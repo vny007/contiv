@@ -567,7 +567,7 @@
                     });
                 } else {
                     containerWrapper.css({
-                        //"height": "auto", // do not reset height value: issue with height:100%!
+                        "height": "auto", // do not reset height value: issue with height:100%!
                         "max-height": (AreaVisible + browser.scroll.height) + 'px'
                     });
                 }

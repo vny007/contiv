@@ -1,4 +1,4 @@
-angular.module('app').controller('DocuCtrl', function ($scope, $rootScope,$state) {
+angular.module('app').controller('DocsCtrl', function ($scope, $rootScope,$state) {
 							$rootScope.hideFooter = true;				 
 											  // $scope.dynamic = 10;
 											   //$scope.$setValidity(true, 2);

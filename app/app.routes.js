@@ -26,7 +26,7 @@ var app = angular.module('app', ['ui.bootstrap', 'ngAnimate','ngSanitize', 'toas
 			}).state('documents', {
 			  url   :'/documents',
 			 templateUrl: 'app/components/documents/documentsView.html',
-			 controller : 'DocuCtrl',
+			 controller : 'DocsCtrl',
 			 resolve: {
 					 deps: ['$ocLazyLoad', function($ocLazyLoad) {
 						return $ocLazyLoad.load({
@@ -45,7 +45,7 @@ var app = angular.module('app', ['ui.bootstrap', 'ngAnimate','ngSanitize', 'toas
 					templateUrl: function(params) {
 						return 'app/components/documents/views/' + params.child + '.html' ;
 					},
-					controller : 'WizardCtrl',
+					controller : 'DocsCtrl',
 				}
 			},
 			 resolve: {
@@ -66,7 +66,7 @@ var app = angular.module('app', ['ui.bootstrap', 'ngAnimate','ngSanitize', 'toas
 						
 						return 'app/components/documents/views/' + params.folder + '/' + params.file + '.html' ;
 					},
-					controller : 'WizardCtrl',
+					controller : 'DocsCtrl',
 				}
 			},
 			 resolve: {
@@ -86,7 +86,7 @@ var app = angular.module('app', ['ui.bootstrap', 'ngAnimate','ngSanitize', 'toas
 					templateUrl: function(params) {
 						return 'app/components/documents/views/' + params.folder + '/' + params.folder_2 + '/' + params.file + '.html' ;
 					},
-					controller : 'WizardCtrl',
+					controller : 'DocsCtrl',
 				}
 			},
 			 resolve: {
@@ -106,7 +106,7 @@ var app = angular.module('app', ['ui.bootstrap', 'ngAnimate','ngSanitize', 'toas
 					templateUrl: function(params) {
 						return 'app/components/documents/views/' + params.folder + '/' + params.folder_2 + '/' + params.folder_3 + '/' + params.file + '.html' ;
 					},
-					controller : 'WizardCtrl',
+					controller : 'DocsCtrl',
 				}
 			},
 			 resolve: {
@@ -122,7 +122,7 @@ var app = angular.module('app', ['ui.bootstrap', 'ngAnimate','ngSanitize', 'toas
 			}).state('articles', {
 			  url   :'/articles',
 			 templateUrl: 'app/components/articles/articlesView.html',
-			 controller : 'WizardCtrl',
+			 controller : 'ArticleCtrl',
 			 resolve: {
 					 deps: ['$ocLazyLoad', function($ocLazyLoad) {
 						return $ocLazyLoad.load({
@@ -141,7 +141,7 @@ var app = angular.module('app', ['ui.bootstrap', 'ngAnimate','ngSanitize', 'toas
 					templateUrl: function(params) {
 						return 'app/components/articles/views/' + params.child + '.html' ;
 					},
-					controller : 'WizardCtrl',
+					controller : 'ArticleCtrl',
 				}
 			},
 			 resolve: {

@@ -1,0 +1,115 @@
+<div class="bs-docs-section">
+				
+	<h1>Node Lifecycle Management</h1>
+<p>To set up a cluster with baremetal or VM hosts see <a href="/documents/gettingStarted/cluster/baremetal.html">Installing Contiv Cluster on a Baremetal Server or VM</a>. To configure cluster management after setup, start with Step 3 below.</p>
+<p>To set up Contiv Cluster on a development machine using Vagrant, follow all the steps below.</p>
+
+<h3>Prerequisites</h3>
+<p>Install the following packages on your machine:</p>
+
+<ul>
+<li>Vagrant 1.7.3 or later
+</li>
+<li>Virtualbox 5.0 or later
+</li>
+<li>Ansible 2.0 or later
+</li>
+</ul>
+
+<h3>Step 1. Check Out and Build the Project</h3>
+<p>Check out and build the project's code as follows:</p>
+<pre class="highlight plaintext"><code>cd $GOPATH/src/github.com/contiv/
+git clone https://github.com/contiv/cluster.git
+</code></pre>
+
+<h3>Step 2. Launch Nodes</h3>
+<p>Launch three Vagrant nodes using the following commands.</p>
+<p><em>Note:</em> As configured in the project's <code>Vagrantfile</code>, all Vagrant nodes except the first node boot up with stock <em>centos7.2</em> OS and a <code>serf</code> agent running. The <code>serf</code> service is used as the node discovery service. This configuration limits the number of services needed to start a cluster.</p>
+<pre class="highlight plaintext"><code>cd cluster/
+CONTIV_NODES=3 make demo-cluster
+</code></pre>
+
+<h3>3. Log In</h3>
+<p><em>Note:</em> The first node is booted with two additional services, <code>collins</code> and <code>clusterm</code>. The <code>collins</code> service is used for node lifecycle management and event logging. The <code>clusterm</code> service is the cluster manager daemon. A <code>clusterctl</code> utility is provided to exercise the cluster manager's REST API.</p>
+<p>Log in to the first node to manage the cluster:</p>
+<pre class="highlight plaintext"><code>CONTIV_NODES=3 vagrant ssh cluster-node1
+</code></pre>
+
+<h4>Provision Nodes</h4>
+<p>Provision more nodes for discovery:</p>
+<pre class="highlight plaintext"><code>clusterctl discover &lt;host-ips&gt;
+</code></pre>
+<p>Cluster Manager uses Serf as a discovery service for node health monitoring and for cluster bootstrapping. Use the <code>discover</code> command to add nodes to the discovery service. The <code>&lt;host-ips&gt;</code> are a list of IP addresses from a management network used only by infra services such as <code>serf</code>, <code>etcd</code>, <code>swarm</code>, and so on.</p>
+<p>The following command provisions the other two VMs (cluster-node2 and cluster-node3) in the Vagrant setup for Serf-based discovery. After a few minutes, discovered hosts appear in <code>clusterctl nodes get</code> output (the command requires a few minutes to propagate).</p>
+<pre class="highlight plaintext"><code>clusterctl discover 192.168.2.11 192.168.2.12 --extra-vars='{"env" : {}, "control_interface": "eth1" }'
+</code></pre>
+<p><em>Note</em>:
+You must specify the <code>env</code> and <code>control_interface</code> Ansible variables in the <code>clusterctl discover</code> command.
+Specify these variables in one of two ways:</p>
+
+<ul>
+<li>Use the <a name="_extra_vars"></a><a href="#_extra_vars"><code>--extra-vars</code></a> flag as shown above 
+</li>
+<li>Set the variables as <a href="#setget_global_vars">global level variables</a>, if applicable. 
+</li>
+</ul>
+<p>For information on other available variables, see the discovery section of <a href="https://github.com/contiv/cluster/blob/master/management/ansible_vars.md">Ansible Variables</a> in the Contiv Cluster GitHub repository.</p>
+
+<h4>List Nodes</h4>
+<p>The following command lists discovered nodes:</p>
+<pre class="highlight plaintext"><code>clusterctl nodes get
+</code></pre>
+<p>Fetch information about a single node with the following commnand: 
+<code>clusterctl node get &lt;node-name&gt;</code></p>
+<p>It might take a few minutes after provisioning for the node discovery to propagate. If the command does not show provisioned nodes, wait and try again later.</p>
+
+<h4>Commission a Node</h4>
+<p>Commissioning a node pushes the configuration and starts infra services on that node using <code>ansible</code> based configuration management. The services that are configured depend on the mandatory parameter <code>--host-group</code>.</p>
+<pre class="highlight plaintext"><code>clusterctl node commission &lt;node-name&gt; --host-group=&lt;service-master|service-worker&gt;
+</code></pre>
+<p>See the <code>service-master</code> and <code>service-worker</code> host groups in <a href="/extras/site.yml">ansible/site.yml</a> to learn more about the services that are configured. To quickly check if commissioning a node worked, run <code>etcdctl member list</code> on the node. The command lists all the commissioned members.</p>
+<p><em>Note</em>: Some Ansible variables must be set to provision a node. See the list of mandatory variables, as well as other useful variables, in the discussion of <a href="https://github.com/contiv/cluster/blob/master/management/ansible_vars.md">Ansible Variables</a> in the Contiv Cluster GitHub repository. The variables must be passed as a quoted JSON string in the node commission command using the <code>--extra-vars</code> flag:</p>
+<pre class="highlight plaintext"><code>clusterctl node commission node1 --extra-vars='{"env" : {}, "control_interface": "eth1", "netplugin_if": "eth2" }' --host-group "service-master"
+</code></pre>
+<p>You can eliminate the need to set global variables with every commission command by directly setting <a href="#setget_global_vars">global level variables</a>.</p>
+
+<h4>Decommission a Node</h4>
+<p>Decommissioning a node stops infra services and removes the configuration from the node using <code>ansible</code> based configuration management.</p>
+<pre class="highlight plaintext"><code>clusterctl node decommission &lt;node-name&gt;
+</code></pre>
+
+<h4>Perform an Upgrade</h4>
+<p>Upgrading a node upgrades the configuration for infra services on that node using <code>ansible</code> based configuration management.</p>
+<pre class="highlight plaintext"><code>clusterctl node maintain &lt;node-name&gt;
+</code></pre>
+<p><a name="setget_global_vars"></a></p>
+
+<h4>Set and Get Global Variables</h4>
+<p>Configure common variables (environment, scheduler-provider, and so on) just once using the <code>--extra-vars</code> flag with the <code>clusterctl global set</code> command:</p>
+<pre class="highlight plaintext"><code>clusterctl global set --extra-vars=&lt;vars&gt;
+</code></pre>
+<p><em>Note</em>: Pass the variables as a quoted JSON string using the <code>--extra-vars</code> flag:</p>
+<pre class="highlight plaintext"><code>clusterctl global set --extra-vars='{"env" : {"http_proxy": "my.proxy.url"}, "scheduler_provider": "ucp-swarm"}'
+</code></pre>
+
+<ul>
+<li>The variables set at the global level are merged with the variables specified at the node level. In case of overlap, node-level variables take precedence.
+</li>
+<li>The list of variables is provided in the <a href="https://github.com/contiv/cluster/blob/master/management/ansible_vars.md">Ansible Variables</a> document in the Contiv Cluster GitHub repository.
+</li>
+</ul>
+
+<h4>Get Job Status</h4>
+<p>Common cluster management workflows like commission, decommission and so on work by running an Ansible playbook. Each such run per workflow is referred to as a job. You can see the status of an ongoing (active) or last-run job using this command:</p>
+<pre class="highlight plaintext"><code>clusterctl job get &lt;active|last&gt;
+</code></pre>
+
+<h4>Manage Multiple Nodes</h4>
+<p>Perform the worflow to commission, decommission, or upgrade all or a subset of nodes using <code>clusterctl nodes</code> subcommands. Refer the documentation of individual commands for details.</p>
+<pre class="highlight plaintext"><code>clusterctl nodes commission &lt;space separated node-name(s)&gt;
+clusterctl nodes decommission &lt;space separated node-name(s)&gt;
+clusterctl nodes maintain &lt;space separated node-name(s)&gt;
+</code></pre>
+
+
+			</div>
