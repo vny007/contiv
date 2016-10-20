@@ -3,7 +3,23 @@ return {
         restrict : 'A',
 		scope    : true,
         link     : function(scope, element, attrs) {
-			
+	$('#myNodes li').clone().appendTo('#myDataSearch');
+	
+	document.getElementById("mySearch").addEventListener("keyup", function(){
+		    document.getElementById("myDataSearch").style.display = 'block';
+			var $partMneu = $('#myNodes').clone();
+			$('#myDataSearch').empty();
+			var value = document.getElementById("mySearch").value;
+			if(!value.length > 0) {
+				document.getElementById("myNodes").style.display = 'block';
+				document.getElementById("myDataSearch").style.display = 'none';
+				return};
+			document.getElementById("myNodes").style.display = 'none';
+			$('li a:contains('+value+')',$partMneu).appendTo('#myDataSearch');									   
+	}); 
+	
+	
+	
 			$('.leftCont').width($('.mainLeft').width()).height($(window).height()-68);
 			$( window ).resize(function() {
 				$('.leftCont').width($('.mainLeft').width()).height($(window).height()-68);
@@ -18,6 +34,55 @@ return {
 	};
 
 });
+app.directive('contivYoutube', function() {
+return {
+        restrict : 'EA',
+		scope    : {
+			playlistid: "="
+			},
+        link     : function(scope, element, attrs) {
+		console.log(scope);
+		scope.$watch('playlistid',function(newVal,oldVal){
+										    console.log(newVal,oldVal);
+										   if(!angular.isUndefined(newVal)){
+											  
+			$(element).ycp(
+				playlist = 10, // number of videos playlist count
+				autoplay = false, //true or false
+				apikey = 'AIzaSyAlbcVQdOgMhn0pNf3h5MwdBs1FIfN8CXQ', // your google api key
+				defaultPlayList = scope.playlistid //'PL5Hg9MkZ9C_ssjoV9j1wYzsMQxT0MMxnP'
+			);
+										   }
+										   });
+	   },
+       controller: function($scope, $element){}
+	};
+
+});
+
+app.directive('contivYoutubePlaylist', ['videoService',function(videoService) {
+return {
+        restrict : 'EA',
+		transclude : false,
+		templateUrl : 'app/components/documents/video/videosItems.html',
+		scope: {
+         myplaylist: "=",
+		 playlistid: "="
+      	},
+        link     : function(scope, element, attrs) {
+			//console.log();
+			videoService.myPlayListItems( scope.playlistid ).then(function( response ){
+											 scope.myplaylist = response;
+											 console.log('sss', response );
+											 });
+		},
+       controller: function($scope, $element){ 
+		   
+		   
+	   }
+	};
+
+}]);
 
  app.directive('ngSpinnerBar', ['$rootScope',
     function($rootScope) {
@@ -86,4 +151,4 @@ app.filter('custom', function() {
     });
     return result;
   }
-});
+}); 

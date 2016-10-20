@@ -1,0 +1,9 @@
+<div class="row">
+	<div class="col-sm-6 col-md-3" ng-repeat="column in myplaylist.items">
+    	<a ui-sref="demo.play({playListId:column.snippet.playlistId})" class="videoCont">
+        	<span class="videoOverlay"></span>
+        	<img ng-src="{{column.snippet.thumbnails.medium.url}}" />
+        </a>
+    	<h5>{{column.snippet.title}}</h5>
+    </div>
+</div>

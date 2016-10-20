@@ -18,7 +18,7 @@
 	font-size: 14px;
 	color: #517fa4;
 	text-decoration: none;
-	outline: none;
+	outline: none; text-transform:capitalize;
 	
 }
 img{ max-width:100%; height:auto;}
@@ -36,9 +36,13 @@ img{ max-width:100%; height:auto;}
 	color: #517fa4; font-family:"latobold";
 	border-bottom:1px solid #ccc;
 	font-size:14px; position:relative;
+	padding-top:15px;
+	padding-bottom:15px;
 	
 }
 .u-vmenu > ul li ul a { background:url("../images/list.png") no-repeat scroll 14px center rgba(0, 0, 0, 0);}
+#myDataSearch > a{display: block;
+    padding: 5px 10px 5px 30px; background:url("../images/list.png") no-repeat scroll 14px center rgba(0, 0, 0, 0);}
 .u-vmenu > ul li.active > a:after {
     border-bottom: 7px solid transparent;
     border-right: 10px solid #fff;
@@ -58,14 +62,20 @@ img{ max-width:100%; height:auto;}
 .u-vmenu > ul > li > ul > li > ul >li > a {
 	padding-left: 50px;
 	background-position:33px center;
+	padding-top:5px;
+	padding-bottom:5px
 }
 .u-vmenu > ul > li > ul > li > ul > li > ul >li > a{
 	padding-left: 60px;
-	background-position:40px center;
+	background-position:48px center;
+	padding-top:5px;
+	padding-bottom:5px
 }
 .u-vmenu > ul > li > ul > li > ul > li > ul > li > ul >li > a {
 	padding-left: 75px;
-	background-position:54px center;
+	background-position:62px center;
+	padding-top:5px;
+	padding-bottom:5px;
 }
 /*.u-vmenu ul li a[data-option='on']{
 	background: url(../images/vmenu/on.png) right center no-repeat;

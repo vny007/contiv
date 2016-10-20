@@ -1,0 +1,45 @@
+<div class="bs-docs-section">
+				
+	<h1>Getting Started with Contiv Cluster</h1>
+<p>For Contiv Cluster manager with baremetal hosts or a multiple VMs, see  <a href="/documents/gettingStarted/cluster/baremetal.html">Installing Contiv Cluster on a Baremetal Server or VM</a> to set up the hosts.</p>
+<p>To quickly create a virtual environment using the Vagrant environment setup tool, do the following:</p>
+
+<h2>Prerequisites</h2>
+<p>Install the following packages on your machnine:</p>
+
+<ul>
+<li>Vagrant 1.7.3 or later
+</li>
+<li>VirtualBox 5.0 or later
+</li>
+<li>Ansible 2.0 or later
+</li>
+<li>Go 1.6 or later
+</li>
+</ul>
+
+<h2>Step 1. Check Out the Project</h2>
+<p>Use the following commands to clone the project to your machine:</p>
+<pre class="highlight plaintext"><code>cd $GOPATH/src/github.com/contiv/
+git clone https://github.com/contiv/cluster.git
+</code></pre>
+
+<h2>Step 2. Launch Three Vagrant Nodes</h2>
+<p>Use the following commands to launch three nodes in the Vagrant environment:</p>
+<pre class="highlight plaintext"><code>cd cluster/
+CONTIV_NODES=3 make demo-cluster
+</code></pre>
+<p><em>Note:</em> The project's <code>Vagrantfile</code> configures all the vagrant nodes (except for the first node) to boot up with a stock Centos7.2 OS and with a <code>serf</code> agent running. The <code>serf</code> agent is used as the node's discovery service. This configuration is intended to make management easier by limiting the number of services needed to start a cluster.</p>
+
+<h2>Step 3. Log In to the First Node</h2>
+<p>The first node is is booted with two additional services, <code>collins</code> and <code>clusterm</code>. The <code>collins</code> service serves as the node lifecycle management and event logging service. The <code>clusterm</code> service is the cluster manager daemon.</p>
+<p>You use the <code>clusterctl</code> utility exercise the cluster manager's REST endpoint.</p>
+<p>Use the following command to log into the first node:</p>
+<pre class="highlight plaintext"><code>CONTIV_NODES=3 vagrant ssh cluster-node1
+</code></pre>
+
+<h2>What to Do Next</h2>
+<p>See the <a href="/documents/cluster/node-lifecycle.html">Cluster</a> docuentation for information about managing the cluster lifecycle.</p>
+
+
+			</div>

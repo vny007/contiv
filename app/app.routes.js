@@ -5,6 +5,7 @@ var app = angular.module('app', ['ui.bootstrap', 'ngAnimate','ngSanitize', 'toas
 			 debug : true
 		});
 	}]);
+  app.constant('youTubeChannel', {'apikey':'AIzaSyAlbcVQdOgMhn0pNf3h5MwdBs1FIfN8CXQ','channelId':'UCAyZuScYlGduBBjQjYq7RvQ'});
 
   app.config(function($stateProvider, $urlRouterProvider,$locationProvider) {
 
@@ -19,6 +20,45 @@ var app = angular.module('app', ['ui.bootstrap', 'ngAnimate','ngSanitize', 'toas
 							insertBefore: '#ng_load_plugins_before', // load the above css files before a LINK element with this ID. Dynamic CSS files must be loaded between core and theme css files
 							files: [
 								'app/components/home/homeController.js',
+							] 
+						});
+					  }]
+				 }
+			}).state('demo', {
+			  url   :'/documents/demo',
+			 templateUrl: 'app/components/documents/video/videosView.html',
+			 controller : 'VideoCtrl',
+			 resolve: {
+					 deps: ['$ocLazyLoad', function($ocLazyLoad) {
+						return $ocLazyLoad.load({
+							insertBefore: '#ng_load_plugins_before', // load the above css files before a LINK element with this ID. Dynamic CSS files must be loaded between core and theme css files
+							files: [
+								'assets/js/videoService.js',
+								'app/components/documents/video/videosController.js',
+							] 
+						});
+					  }]
+				 }
+			}).state('demo.play', {
+			  url   :'/:playListId',
+			 views: {
+				'documentContent': {
+					templateUrl: function(params) {
+						return 'app/components/documents/video/videosPlayView.html';
+					},
+					controller : function( $scope, $state){
+						$scope.playlistid = $state.params.playListId;
+						//console.log($scope.playlistid);
+					},
+				}
+			},
+			 resolve: {
+					 deps: ['$ocLazyLoad', function($ocLazyLoad) {
+						return $ocLazyLoad.load({
+							insertBefore: '#ng_load_plugins_before', // load the above css files before a LINK element with this ID. Dynamic CSS files must be loaded between core and theme css files
+							files: [
+								'assets/js/videoService.js',
+								'app/components/documents/video/videosController.js',
 							] 
 						});
 					  }]
@@ -165,3 +205,34 @@ var app = angular.module('app', ['ui.bootstrap', 'ngAnimate','ngSanitize', 'toas
 				  $rootScope.hideFooter = true;
 
 				  });
+app.directive('uiSrefIf', function($compile) {
+    return {
+        link: function($scope, $element, $attrs) {
+
+            var uiSrefVal = $attrs.uiSrefVal,
+                uiSrefIf  = $attrs.uiSrefIf;
+
+            $element.removeAttr('ui-sref-if');
+            $element.removeAttr('ui-sref-val');
+
+
+
+            $scope.$watch(
+                function(){
+                    return $scope.$eval(uiSrefIf);
+                },
+                function(bool) {
+                    if (bool) {
+
+                        $element.attr('ui-sref', uiSrefVal);
+                    } else {
+
+                        $element.removeAttr('ui-sref');
+                        $element.removeAttr('href');
+                    }
+                    $compile($element)($scope);
+                }
+            );
+        }
+    };
+});

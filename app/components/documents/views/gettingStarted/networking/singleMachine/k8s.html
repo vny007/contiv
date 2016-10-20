@@ -1,0 +1,251 @@
+<div class="bs-docs-section">
+				
+	<h1>Contiv Networking with Kubernetes</h1>
+<p>Contiv integrates with Kubernetes using a common network interface (CNI) plugin. 
+With this integration, Contiv Networking and Policy can be used for pod interconnectivity 
+in a Kubernetes cluster.</p>
+<p>This page guides you through creating a minimal Kubernetes 
+cluster with Contiv networking and applying policy between pods.</p>
+
+<h2>Prerequisites</h2>
+<p>1. Install the following packages on your Linux or OS X machine:</p>
+
+<ul>
+<li>VirtualBox 5.0.2 or later
+</li>
+<li>Vagrant 1.7.4
+</li>
+<li>make, git and bzip2
+</li>
+</ul>
+<p>2. Set http/https proxies if your network requires it.
+<em>Note</em>: Set <code>https_proxy</code> to point to an <code>http://</code>
+ URL (not <code>https://</code>). This is an ansible requirement.</p>
+<p>3. The setup scripts use the Python modules <em>parse</em> and <em>netaddr</em>. If these modules are not
+installed on the machine where you are executing these steps, install them
+before proceeding. (Use <code>pip install parse; pip install netaddr</code>.)</p>
+
+<h3>Step 1: Clone the Repositories</h3>
+<p>Use the following commands to clone the Contiv Network and contributed
+project repositories to your local machine:</p>
+<pre class="highlight plaintext"><code>$ mkdir -p ~/go/src/github.com/k8s
+$ cd ~/go/src/github.com/k8s
+$ git clone https://github.com/jojimt/contrib -b contiv
+
+$ cd ~/go/src/github.com/k8s
+$ git clone https://github.com/contiv/netplugin
+</code></pre>
+
+<h3>Step 2: Create a Vagrant Environment</h3>
+<p>The following commands run Vagrant and Ansible commands to start a 
+Kubernetes cluster with one master and two worker nodes. This process
+can take a few minutes.</p>
+<p>Navigate to the <code>netplugin</code> directory and run the <em>k8s-cluster</em>
+make target:</p>
+<pre class="highlight plaintext"><code>$ cd ~/go/src/github.com/k8s/netplugin
+$ make k8s-cluster
+</code></pre>
+<p>When the process is complete, a message like the following displays:</p>
+<pre class="highlight plaintext"><code>PLAY RECAP ********************************************************************
+k8master                   : ok=xxx  changed=xxx  unreachable=0    failed=0   
+k8node-01                  : ok=xxx  changed=xxx  unreachable=0    failed=0   
+k8node-02                  : ok=xxx  changed=xxx  unreachable=0    failed=0   
+</code></pre>
+<p>At this point, your cluster is ready to use.</p>
+<p><em>Note</em>: Occasionally, you might encounter an error during Ansible provisioning.
+If this happens, just re-issue the command (usually, it's caused by a temporary
+unavailability of a repository on the web). If the problem persists, open an
+issue on GitHub.</p>
+<p>You should proceed to Step 3 <em>only</em> if the previous step completed successfully.</p>
+<p>This demo uses a <em>busybox</em> image built to include a full <em>netcat</em> utility.
+However, you can try other images as well if you like. <em>The Dockerfile used to
+build the nc-busybox is available in the <code>/shared</code> folder of the *k8master</em> node
+See Step 3).</p>
+
+<h4>Step 3: Start the Network Services</h4>
+<p>The following command starts network services and logs you into the kubernetes master node.</p>
+<pre class="highlight plaintext"><code>$ make k8s-demo-start
+</code></pre>
+<p>When this process is finished, you are shown a shell prompt on the master node.
+Use <code>sudo su</code> to enter <em>sudo</em> mode and try a few commands as follows:</p>
+<pre class="highlight plaintext"><code>[vagrant@k8master ~]$ sudo su
+[root@k8master vagrant]# kubectl get nodes
+NAME        LABELS                             STATUS    AGE
+k8node-01   kubernetes.io/hostname=k8node-01   Ready     4m
+k8node-02   kubernetes.io/hostname=k8node-02   Ready     4m
+
+[root@k8master vagrant]# netctl net list
+Tenant   Network      Encap type  Packet tag  Subnet       Gateway
+------   -------      ----------  ----------  -------      ------
+default  default-net  vxlan       &lt;nil&gt;       20.1.1.0/24  20.1.1.254
+
+default  poc-net      vxlan       &lt;nil&gt;       21.1.1.0/24  21.1.1.254
+
+[root@k8master ~]# netctl group list
+Tenant   Group        Network      Policies
+------   -----        -------      --------
+default  default-epg  default-net  
+default  poc-epg      poc-net
+
+</code></pre>
+<p>The last two commands show Contiv configuration. The demo setup created two networks
+and two endpoint groups (EPGs).</p>
+<p>The demo environment is now ready. Following are some examples of creating some clustered
+containers.</p>
+
+<h2>Example 1: No Network Labels</h2>
+<p>With no network labels, the pod is placed in a default network.</p>
+<p>Navigate to the <code>/shared</code> directory to find some pod specification files. Use the files to
+create <code>defaultnet-busybox1</code> and <code>defaultnet-busybox2</code>:</p>
+<pre class="highlight plaintext"><code>[root@k8master ~]# cd /shared
+[root@k8master shared]#ls
+defaultnet-busybox1.yaml  noping-busybox.yaml  pocnet-busybox.yaml
+defaultnet-busybox2.yaml  pingme-busybox.yaml  policy.sh
+
+[root@k8master shared]# kubectl create -f defaultnet-busybox1.yaml
+pod "defaultnet-busybox1" created
+[root@k8master shared]# kubectl create -f defaultnet-busybox2.yaml
+pod "defaultnet-busybox2" created
+
+[root@k8master shared]# kubectl get pods
+NAME                 READY     STATUS    RESTARTS   AGE
+defaultnet-busybox1  1/1       Running   0          3m
+defaultnet-busybox2  1/1       Running   0          39s
+
+</code></pre>
+<p>It may take a few minutes for the pods to enter the <em>Running</em> state. 
+When both have entered the <code>Running</code> state, verify their IP addresses and reachability:</p>
+<pre class="highlight plaintext"><code>[root@k8master shared]# kubectl exec defaultnet-busybox1 -- ip address
+1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 qdisc noqueue
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host
+       valid_lft forever preferred_lft forever
+47: eth0@if46: &lt;BROADCAST,MULTICAST,UP,LOWER_UP,M-DOWN&gt; mtu 1450 qdisc noqueue
+    link/ether 02:02:14:01:01:09 brd ff:ff:ff:ff:ff:ff
+    inet 20.1.1.9/24 scope global eth0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::2:14ff:fe01:109/64 scope link
+       valid_lft forever preferred_lft forever
+
+
+[root@k8master shared]# kubectl describe pod defaultnet-busybox2 | grep IP
+IP:                             20.1.1.10
+
+[root@k8master shared]# kubectl exec defaultnet-busybox1 -- ping 20.1.1.10
+PING 20.1.1.10 (20.1.1.10): 56 data bytes
+64 bytes from 20.1.1.10: seq=0 ttl=64 time=0.562 ms
+64 bytes from 20.1.1.10: seq=1 ttl=64 time=0.124 ms
+64 bytes from 20.1.1.10: seq=2 ttl=64 time=0.073 ms
+
+</code></pre>
+<p>Notice that both pods were assigned IP addresses from the default network and
+that they can ping each other.</p>
+
+<h2>Example 2: Labeled Network</h2>
+<p>In this examply you use network labels to specify a network and EPG for the Pod.</p>
+<p>Type the following command to create a Pod with <code>poc-net</code> and <code>poc-epg</code> specified as the 
+network and EPG respectively:</p>
+<pre class="highlight plaintext"><code>[root@k8master shared]# kubectl create -f pocnet-busybox.yaml
+pod "busybox-poc-net" created
+</code></pre>
+<p>Examine <code>pocnet-busybox.yaml</code>. There are two additional labels,
+<code>io.contiv.network: poc-net</code> and <code>io.contiv.net-group: poc-epg</code>, defined
+in this pod specification.</p>
+<p>Notice that this pod was assigned an IP addresses from the poc-net:</p>
+<pre class="highlight plaintext"><code>[root@k8master shared]# kubectl get pods
+NAME                  READY     STATUS    RESTARTS   AGE
+busybox-poc-net       1/1       Running   0          54s
+defaultnet-busybox1   1/1       Running   0          35m
+defaultnet-busybox2   1/1       Running   0          35m
+
+[root@k8master shared]# kubectl exec busybox-poc-net -- ip address
+1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 qdisc noqueue
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host
+       valid_lft forever preferred_lft forever
+129: eth0@if128: &lt;BROADCAST,MULTICAST,UP,LOWER_UP,M-DOWN&gt; mtu 1450 qdisc noqueue
+    link/ether 02:02:15:01:01:02 brd ff:ff:ff:ff:ff:ff
+    inet 21.1.1.2/24 scope global eth0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::2:15ff:fe01:102/64 scope link
+       valid_lft forever preferred_lft forever
+</code></pre>
+
+<h2>Example 3: Use Contiv to Specify and Enforce Network Policy</h2>
+<p>In this example, you create a policy and attach it to an EPG. You specify
+this epg in the pod specification and verify that the policy is enforced.</p>
+<p>Examine <code>policy.sh</code>. This file contains Contiv commands to create a simple 
+ICMP deny rule, add the rule to a policy, and attach the policy to an EPG.</p>
+<p>Excute this script to create the network objects:</p>
+<pre class="highlight plaintext"><code>[root@k8master shared]# ./policy.sh
+
+[root@k8master shared]# netctl group list
+Tenant   Group        Network      Policies
+------   -----        -------      --------
+default  poc-epg      poc-net      
+default  noping-epg   poc-net      icmpPol
+default  default-epg  default-net  
+
+[root@k8master shared]# netctl rule list icmpPol
+Rule  Direction  Priority  EndpointGroup  Network  IpAddress  Protocol  Port   Action
+----  ---------  --------  -------------  -------  ---------  --------  ----   ------
+1     in         1         &lt;nil&gt;          &lt;nil&gt;    &lt;nil&gt;      icmp      &lt;nil&gt;  deny
+
+</code></pre>
+<p>Examine <code>noping-busybox.yaml</code> and <code>pingme-busybox.yaml</code>. They specify <code>noping-epg</code> and <code>poc-epg</code>
+respectively as their EPGs. Both of these pods have a <em>netcat</em> listener on TCP port 6379
+(See <code>nc-busybox/nc_loop.sh</code>).</p>
+<p>Create both of these pods and verify their connectivity behavior.</p>
+<pre class="highlight plaintext"><code>[root@k8master shared]# kubectl create -f noping-busybox.yaml
+pod "annoyed-busybox" created
+[root@k8master shared]# kubectl create -f pingme-busybox.yaml
+pod "sportive-busybox" created
+
+[root@k8master shared]# kubectl get pods
+NAME                READY     STATUS    RESTARTS   AGE
+annoyed-busybox       1/1       Running   0          22m
+busybox-poc-net       1/1       Running   0          35m
+defaultnet-busybox1   1/1       Running   0          35m
+defaultnet-busybox2   1/1       Running   0          35m
+sportive-busybox      1/1       Running   0          21m
+
+
+[root@k8master shared]# kubectl describe pod annoyed-busybox | grep IP
+IP:                             21.1.1.2
+
+[root@k8master shared]# kubectl describe pod sportive-busybox | grep IP
+IP:                             21.1.1.4
+
+</code></pre>
+<p>Try to access <code>annoyed-busybox</code> and <code>sportive-busybox</code> from <code>busybox-poc-net</code> 
+using <em>ping</em> and <em>nc</em>:</p>
+<pre class="highlight plaintext"><code>[root@k8master shared]# kubectl exec busybox-poc-net -- ping 21.1.1.2
+
+[root@k8master shared]# kubectl exec busybox-poc-net -- ping 21.1.1.4
+PING 21.1.1.4 (21.1.1.4): 56 data bytes
+64 bytes from 21.1.1.4: seq=0 ttl=64 time=0.230 ms
+64 bytes from 21.1.1.4: seq=1 ttl=64 time=0.390 ms
+64 bytes from 21.1.1.4: seq=2 ttl=64 time=0.205 ms
+
+[root@k8master shared]# kubectl exec busybox-poc-net -- nc -zvw 1 21.1.1.2 6379
+21.1.1.2 [21.1.1.2] 6379 (6379) open
+
+[root@k8master shared]# kubectl exec busybox-poc-net -- nc -zvw 1 21.1.1.4 6379
+21.1.1.4 [21.1.1.4] 6379 (6379) open
+
+</code></pre>
+<p>Notice that: 
+1. <code>busybox-poc-net</code> is unable to ping <code>annoyed-busybox</code>
+2. <code>busybox-poc-net</code> is able to ping <code>sportive-busybox</code>, 
+to which no policy was applied. 
+3. <code>busybox-poc-net</code> is able to exchange TCP with <code>annoyed-busybox</code>, 
+consistent with the applied policy. You can try other combinations as 
+well, for example applying  ping and nc between <code>annoyed-busybox</code> and <code>sportive-busybox</code>.
+You can also create your own policy and pod spec and try.</p>
+
+
+			</div>

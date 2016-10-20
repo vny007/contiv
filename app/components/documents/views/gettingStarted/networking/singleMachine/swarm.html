@@ -1,0 +1,170 @@
+<div class="bs-docs-section">
+				
+	<h1>Contiv Network with Docker Swarm</h1>
+<p>This page describes how to quickly create a virtual environment
+using the Vagrant environment setup tool. You can then demonstrate
+features of Docker and Contiv such as creating containers,
+networks, and policies.</p>
+
+<h2>Prerequisites</h2>
+<p>Before you can install the virtual environment, you must have the following
+software packages on your machine:</p>
+
+<ul>
+<li>VirtualBox 5.0.2 or later
+</li>
+<li>Vagrant 1.7.4
+</li>
+<li>Make
+</li>
+</ul>
+
+<h2>Step 1: Start the Virtual Environment</h2>
+<p>The following three commands are all you need to clone the repository and start the VMs:</p>
+<pre class="highlight plaintext"><code>$ git clone https://github.com/contiv/netplugin
+$ cd netplugin; make demo
+$ vagrant ssh netplugin-node1
+</code></pre>
+<p>These commands start a cluster of three VMs running Docker and Contiv Network, and log
+you into one of the VMs.</p>
+
+<h2>Step 2: Create a Network</h2>
+<p>Use the following command to create a network:</p>
+<pre class="highlight plaintext"><code>netplugin-node1$ netctl net create contiv-net --subnet=20.1.1.0/24 --gateway=20.1.1.254 --pkt-tag=1001
+</code></pre>
+
+<h2>Step 3: Run Containers on Two Hosts</h2>
+<p>Start a Docker container on the node you just logged into:</p>
+<pre class="highlight plaintext"><code>netplugin-node1$ docker run -itd --name=web --net=contiv-net alpine /bin/sh
+Note: "alpine" docker image has all network debugging utilities
+      such as ping, ip, ifconfig etc...
+      Its possible to use any custom image as well.
+      The standard "ubuntu" image does not come with debug utilities.
+</code></pre>
+<p>In another shell window, log into the second VM and start another Docker container:</p>
+<pre class="highlight plaintext"><code>$ vagrant ssh netplugin-node2
+netplugin-node2$ docker run -itd --name=db --net=contiv-net alpine /bin/sh
+</code></pre>
+<p>On node 1, log into the container and ping the container on node 2:</p>
+<pre class="highlight plaintext"><code>netplugin-node1$ docker exec -it web /bin/sh
+&lt; inside the container &gt;
+root@f90e7fd409c4:/# ping db
+PING db (20.1.1.3) 56(84) bytes of data.
+64 bytes from db (20.1.1.3): icmp_seq=1 ttl=64 time=0.658 ms
+64 bytes from db (20.1.1.3): icmp_seq=2 ttl=64 time=0.103 ms
+</code></pre>
+
+<h2>Step 4: Create a Policy</h2>
+<p>Type the following to create a policy named <code>prod-web</code>:</p>
+<pre class="highlight plaintext"><code>$ netctl policy create prod-web
+</code></pre>
+
+<h2>Step 5: Add Rules to the Policy</h2>
+<p>The following three commands add a default-deny rule to drop all incoming TCP
+connections and two rules to explicitly allow traffic on ports 80 and 443.</p>
+<pre class="highlight plaintext"><code>$ netctl policy rule-add prod-web 1 -direction=in -protocol=tcp -action=deny
+$ netctl policy rule-add prod-web 2 -direction=in -protocol=tcp -port=80 -action=allow -priority=10
+$ netctl policy rule-add prod-web 3 -direction=in -protocol=tcp -port=443 -action=allow -priority=10
+</code></pre>
+
+<h2>Step 6: Create an Endpoint Group</h2>
+<p>An endpoint group (EPG) is a collection of containers' interfaces on a network. You create an endpoint
+group, then assign nodes to it.</p>
+<p>Use the following command to create an endpoint group named <code>web</code> in network <code>contiv-net</code> and attach the
+<code>prod-web</code> policy to it.</p>
+<pre class="highlight plaintext"><code>$ netctl group create contiv-net web -policy=prod-web
+</code></pre>
+<p><em>Note</em>: Every endpoint group creates a seperate Docker network of the form <code>&lt;endpoint-group-name&gt;.&lt;network-name&gt;</code>.
+You can attach containers to these endpoint groups using the <code>--net</code> option in the <code>docker run</code> command.</p>
+
+<h2>Step 7: Attach a Container</h2>
+<p>Next, run a container and attach it to the endpoint group.
+The following command runs a Docker container and attaches it to the <code>web</code> EPG
+in the <code>contiv-net</code> network.</p>
+<p>You can get network name using <code>docker network ls</code> command. Look for netplugin as a driver.</p>
+<pre class="highlight plaintext"><code>$ docker run -itd --net contiv-net alpine sh
+</code></pre>
+
+<h2>Using Netplugin with Docker Swarm</h2>
+<p>Docker Swarm is a scheduler that schedules containers to multiple hosts. The <code>netplugin</code> service is Contiv's
+Docker network plugin that provides multi-host networking. Together, Docker, Swarm, and Contiv Network are 
+a powerful combination.</p>
+
+<h3>Using Swarm</h3>
+<p>The <code>netplugin</code> Vagrant setup comes pre-installed with Docker Swarm.
+Set the following environment variable to make the Docker client communicate with Swarm.</p>
+<pre class="highlight plaintext"><code>export DOCKER_HOST=tcp://192.168.2.10:2375
+</code></pre>
+<p>The Swarm cluster should now be visible.
+Type the following to see information about the Swarm cluster:</p>
+<pre class="highlight plaintext"><code>docker info
+Containers: 10
+ Running: 10
+ Paused: 0
+ Stopped: 0
+Images: 8
+Server Version: swarm/1.2.0
+Role: replica
+Primary: 192.168.2.11:2375
+Strategy: spread
+Filters: health, port, dependency, affinity, constraint
+Nodes: 3
+ netplugin-node1: 192.168.2.10:2385
+  + Status: Healthy
+  + Containers: 5
+  + Reserved CPUs: 0 / 4
+  + Reserved Memory: 0 B / 1.886 GiB
+  + Labels: executiondriver=, kernelversion=3.10.0-327.22.2.el7.x86_64, operatingsystem=CentOS Linux 7 (Core), storagedriver=overlay
+  + Error: (none)
+  + UpdatedAt: 2016-08-18T21:50:17Z
+  + ServerVersion: 1.11.1
+ netplugin-node2: 192.168.2.11:2385
+  + Status: Healthy
+  + Containers: 3
+  + Reserved CPUs: 0 / 4
+  + Reserved Memory: 0 B / 1.886 GiB
+  + Labels: executiondriver=, kernelversion=3.10.0-327.22.2.el7.x86_64, operatingsystem=CentOS Linux 7 (Core), storagedriver=overlay
+  + Error: (none)
+  + UpdatedAt: 2016-08-18T21:49:49Z
+  + ServerVersion: 1.11.1
+ netplugin-node3: 192.168.2.12:2385
+  + Status: Healthy
+  + Containers: 2
+  + Reserved CPUs: 0 / 4
+  + Reserved Memory: 0 B / 1.886 GiB
+  + Labels: executiondriver=, kernelversion=3.10.0-327.22.2.el7.x86_64, operatingsystem=CentOS Linux 7 (Core), storagedriver=overlay
+  + Error: (none)
+  + UpdatedAt: 2016-08-18T21:50:08Z
+  + ServerVersion: 1.11.1
+Plugins: 
+ Volume: 
+ Network: 
+Kernel Version: 3.10.0-327.22.2.el7.x86_64
+Operating System: linux
+Architecture: amd64
+CPUs: 12
+Total Memory: 5.659 GiB
+Name: 1b8370657ee5
+Docker Root Dir: 
+Debug mode (client): false
+Debug mode (server): false
+WARNING: No kernel memory limit support
+
+</code></pre>
+<p>Next, you can see if there are any containers running in the cluster:</p>
+<pre class="highlight plaintext"><code>$ docker ps
+CONTAINER ID        IMAGE                          COMMAND             CREATED             STATUS              PORTS               NAMES
+4dd09bc36875        alpine                         "/bin/sh"           52 minutes ago      Up 52 minutes                           netplugin-node1/reverent_allen
+18bdc2cde778        skynetservices/skydns:latest   "/skydns"           3 hours ago         Up 3 hours          53/udp, 53/tcp      netplugin-node1/defaultdns
+
+</code></pre>
+<p>You can run containers and attach them to Contiv networks or endpoint groups just like before.</p>
+<pre class="highlight plaintext"><code>$ docker run -itd --net contiv-net alpine sh
+f291e269b45a5877f6fc952317feb329e12a99bda3a44a740b4c3307ef87954c
+</code></pre>
+<p>Here, <code>docker run</code> executes against the swarm cluster. Swarm schedules the 
+container to one of the nodes, then <code>netplugin</code> on that node sets up the 
+networking and policies just like before.</p>
+
+
+			</div>

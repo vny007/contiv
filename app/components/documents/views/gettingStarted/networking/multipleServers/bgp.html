@@ -1,0 +1,41 @@
+<div class="bs-docs-section">
+				
+	<h1>Installing Contiv in a BGP L3 Setup</h1>
+<p>This page describes how to configure the Contiv infrastructure in L3 native VLAN mode.</p>
+<p>The following figure shows a Contiv cluster with routing capabilites:</p>
+<p><img src="/documents/gettingStarted/networking/bgp_arch-f61447e6.png" alt="bgp"></p>
+
+<h2>Prerequisites</h2>
+<p>Follow the <a href="/documents/gettingStarted/networking/install-swarm.html#Prerequisites">Prerequisites</a> and <a href="/documents/gettingStarted/networking/install-swarm.html#Download">Download</a>
+steps on the <a href="/documents/gettingStarted/networking/install-swarm.html">Swarm Cluster</a> installation page. 
+These steps install all of the required packages and binaries needed to start the Contiv infrastrure services.</p>
+
+<h2>Step 1: Run the Installer Script</h2>
+<p>Use the following command to run the installer script:</p>
+<pre class="highlight plaintext"><code>$chmod +x net_demo_installer
+$./net_demo_installer -l
+</code></pre>
+<p>The <code>net_demo_installer</code> creates a <code>cfg.yaml</code> template file on the first run.</p>
+
+<h2>Step 2: Specify the Configuration</h2>
+<p>Edit the <code>cfg.yaml</code> file to specify the interfaces and IP addresses of your cluster nodes.</p>
+<p>The configuration file for a simple demo topology is shown below. A sample configuration file can be 
+downloaded <a href="extras/sample_cfg.yml">here</a>.</p>
+<pre class="highlight plaintext"><code>CONNECTION_INFO:
+      172.29.205.224:
+        control: eth1
+        data: eth7
+      172.29.205.255:
+        control: eth1
+        data: eth6
+</code></pre>
+<p><em>Note</em>: As shown in the topology diagram, the server's data interface,
+not the management interface, should be the uplink interface.</p>
+
+<h2>Step 3: Rerun the Installer</h2>
+<p>Rerun the installer after editing the <code>cfg.yaml</code> file.</p>
+<pre class="highlight plaintext"><code>./net_demo_installer -l
+</code></pre>
+
+
+			</div>
